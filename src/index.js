@@ -13,7 +13,6 @@ program
 
 program.parse(process.argv)
 
-
 const provider = ethers.getDefaultProvider(program.network)
 
 const pool = new ethers.Contract(program.address, Pool, provider)
@@ -47,7 +46,7 @@ Promise.all(promises).then(function (winners) {
   addresses.forEach((address, index) => {
     const count = grouped[address].length
     const percentage = 100.0 * count / program.count
-    const message = `${address}: won ${percentage.toFixed(2)}% of prizes`
+    const message = `${address}, ${percentage.toFixed(1)}%, ${count}`
     const percentile = (index * 1.0) / addresses.length
     if (percentile < 0.25) {
       console.log(chalk.green(message))
