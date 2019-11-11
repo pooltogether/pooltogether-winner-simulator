@@ -3,12 +3,15 @@ const program = require('commander')
 const ethers = require('ethers')
 const _ =  require('lodash')
 const chalk = require('chalk')
+const generateSecret = require('./generateSecret')
+const generateSecretHash = require('./generateSecretHash')
 
 const Pool = require('./abis/Pool.json')
 
 program
   .option('-c --count [number]', 'number of winners to calculate', 100)
   .option('-n --network [name]', 'network name', 'mainnet')
+  .option('-s --secretSeed [hex encoded 256 bit value]', 'use a secret to generate all draw values.  i.e. 0x2a026f2c09a3591d03c7c61b7d58a96c600bbacb0f1362981a93cda3747a0bb4')
   .option('-a --address [ethereum address]', 'pool contract address', '0xb7896fce748396EcFC240F5a0d3Cc92ca42D7d84')
 
 program.parse(process.argv)
@@ -17,15 +20,27 @@ const provider = ethers.getDefaultProvider(program.network)
 
 const pool = new ethers.Contract(program.address, Pool, provider)
 
-async function randomWinner() {
-  const entropy = ethers.utils.randomBytes(32)
+let nextDrawId = 1
+
+function nextRandomNumber() {
+  let entropy
+  if (program.secretSeed) {
+    entropy = generateSecret(program.secretSeed, nextDrawId)
+    nextDrawId += 1
+  } else {
+    entropy = ethers.utils.randomBytes(32)
+  }
+  return entropy
+}
+
+async function randomWinner(entropy) {
   const winner = await pool.calculateWinner(entropy) 
   return winner
 }
 
 const promises = []
 for (let i = 0; i < program.count; i++) {
-  promises.push(randomWinner())
+  promises.push(randomWinner(nextRandomNumber()))
 }
 
 Promise.all(promises).then(function (winners) {
