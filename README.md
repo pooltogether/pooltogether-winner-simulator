@@ -6,12 +6,20 @@ It allows us to simulate the winner selection
 
 # Setup
 
-```
-npm install pooltogether-winner-simulator
+```sh
+$ npm install pooltogether-winner-simulator
 ```
 
 # Usage
 
+If you've cloned this repository:
+
+```sh
+$ yarn winnersim --help
 ```
-winnersim --help
+
+If you've installed it as a package:
+
+```sh
+$ winnersim --help
 ```
